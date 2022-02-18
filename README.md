@@ -1,5 +1,5 @@
 # es4x-multithreaded-access
-Reproducer for graal multithreaded access exceptions during verticle deployment
+Reproducer for graal cross-context module access exceptions during verticle deployment. These test cases use the rxjs library to illustrate the problem, but any sufficiently large/modularized npm package (ramda, yup, validator, etc.) can create these same conflicts. The problem is not unique to rxjs.
 
 ## How to use
 This reproducer deploys an es4x verticle on a jvm instantiated by gradle using the following steps:
