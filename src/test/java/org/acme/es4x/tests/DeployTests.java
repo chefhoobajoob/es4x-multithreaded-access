@@ -58,17 +58,18 @@ public class DeployTests {
     @Test
     @Timeout(value=3, timeUnit = TimeUnit.MINUTES)
     public void deploysTwoOverlapping( Vertx theVertx, VertxTestContext theContext ) {
+        _logger = LoggerFactory.getLogger( "org.acme.es4x.tests.main.deploysTwoOverlapping" );
         deployTwo( theVertx, theContext, 1000L );
     }
 
     @Test
     @Timeout(value=3, timeUnit = TimeUnit.MINUTES)
     public void deploysOneThenTwo( Vertx theVertx, VertxTestContext theContext ) {
+        _logger = LoggerFactory.getLogger( "org.acme.es4x.tests.main.deploysOneThenTwo" );
         deployTwo( theVertx, theContext, 10*1000L );
     }
 
     private void deployTwo( Vertx theVertx, VertxTestContext theContext, Long theWaitTime ) {
-        _logger = LoggerFactory.getLogger( "org.acme.es4x.tests.main.deploysTwo" );
         String v1Name = "js:node_modules/test-verticle/main.js";
         JsonObject v1Config = new JsonObject()
             .put("myAddress", "org.acme.es4x.verticle.01")
