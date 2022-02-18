@@ -3,7 +3,7 @@
 /* global config */
 
 const setup = JSON.parse(config.encode())
-const logger = Java.type('org.slf4j.LoggerFactory').getLogger(`${setup.myAddress}.verticle`)
+const logger = Java.type('org.slf4j.LoggerFactory').getLogger(`${setup.myAddress}.main`)
 logger.info('loading someModule')
 const someModule = require('./someModule')
 logger.info('done loading modules')
