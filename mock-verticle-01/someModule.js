@@ -5,9 +5,9 @@ const logger = Java.type('org.slf4j.LoggerFactory').getLogger('org.acme.es4x.tes
 logger.info('loading mock-internal/observables')
 const { sendRequest } = require('mock-internal/observables')
 logger.info('loading rxjs')
-const { of, defer } = require('rxjs')
+const { of, defer, timer } = require('rxjs')
 logger.info('loading rxjs/operators')
-const { tap, mergeMap, retryWhen, delayWhen, timer } = require('rxjs/operators')
+const { tap, mergeMap, retryWhen, delayWhen } = require('rxjs/operators')
 logger.info('done loading modules')
 
 let consumer
