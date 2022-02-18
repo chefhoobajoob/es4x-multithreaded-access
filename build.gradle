@@ -124,17 +124,9 @@ task installPackages(type: NpmTask) {
 
 task setupMockVerticles(type: Copy) {
     dependsOn installPackages
-    from('mock-internal') {
+    from('test-verticle') {
         include('**/*')
-        into('mock-internal')
-    }
-    from('mock-verticle-01') {
-        include('**/*')
-        into('mock-verticle-01')
-    }
-    from('mock-verticle-02') {
-        include('**/*')
-        into('mock-verticle-02')
+        into('test-verticle')
     }
     into('node_modules')
 }

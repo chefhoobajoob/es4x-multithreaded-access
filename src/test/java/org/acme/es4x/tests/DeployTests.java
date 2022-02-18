@@ -22,9 +22,9 @@ public class DeployTests {
     @Test
     public void deploysOne( Vertx theVertx, VertxTestContext theContext ) {
         _logger = LoggerFactory.getLogger( "org.acme.es4x.tests.main.deploysOne" );
-        String v1Name = "js:node_modules/mock-verticle-01/main.js";
+        String v1Name = "js:node_modules/test-verticle/main.js";
         JsonObject v1Config = new JsonObject()
-            .put("myAddress", "org.acme.verticle.01")
+            .put("myAddress", "org.acme.es4x.verticle")
             .put("myName", "Kendrick")
             .put("theirAddress", _logger.getName())
             .put("theirName", "BbyMutha");
@@ -59,15 +59,15 @@ public class DeployTests {
     @Timeout(value=3, timeUnit = TimeUnit.MINUTES)
     public void deploysTwo( Vertx theVertx, VertxTestContext theContext ) {
         _logger = LoggerFactory.getLogger( "org.acme.es4x.tests.main.deploysTwo" );
-        String v1Name = "js:node_modules/mock-verticle-01/main.js";
+        String v1Name = "js:node_modules/test-verticle/main.js";
         JsonObject v1Config = new JsonObject()
-            .put("myAddress", "org.acme.verticle.01")
+            .put("myAddress", "org.acme.es4x.verticle.01")
             .put("myName", "Kendrick")
-            .put("theirAddress", "org.acme.verticle.02")
+            .put("theirAddress", "org.acme.es4x.verticle.02")
             .put("theirName", "BbyMutha");
         DeploymentOptions v1Options = new DeploymentOptions().setConfig( v1Config );
 
-        String v2Name = "js:node_modules/mock-verticle-02/main.js";
+        String v2Name = "js:node_modules/test-verticle/main.js";
         JsonObject v2Config = new JsonObject()
             .put("myAddress", v1Config.getString("theirAddress"))
             .put("myName", v1Config.getString("theirName"))

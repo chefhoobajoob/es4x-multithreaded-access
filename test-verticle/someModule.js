@@ -2,8 +2,8 @@
 /* global vertx */
 
 const logger = Java.type('org.slf4j.LoggerFactory').getLogger('org.acme.es4x.test.verticle-01.someModule')
-logger.info('loading mock-internal/observables')
-const { sendRequest } = require('mock-internal/observables')
+logger.info('loading ./observables')
+const { sendRequest } = require('./observables')
 logger.info('loading rxjs')
 const { of, defer, timer } = require('rxjs')
 logger.info('loading rxjs/operators')
@@ -32,7 +32,7 @@ module.exports.waitFor = (theirAddress, theirName, myName) => {
   .pipe(
     tap({
       next: () => logger.info(`got a response from (${theirName}) at (${theirAddress})`),
-      error: (error) => logger.warn(`hello request to (${theirName}) failed`, error)
+      error: (error) => logger.warn(`hello request to (${theirName}) failed: ${error.getClass().getCanonicalName()}: ${error.getMessage()}`)
     }),
     retryWhen(errors => errors.pipe(
       delayWhen(() => {
