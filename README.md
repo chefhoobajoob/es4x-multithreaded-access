@@ -4,7 +4,7 @@ Reproducer for graal multithreaded access exceptions during verticle deployment
 ## How to use
 This reproducer runs es4x verticles on a jvm instantiated by gradle using the following steps:
 1. From the command line, type `./gradlew test`
-2. The build script will retrieve an npm distribution, install rxjs 7.2.5 and @vertx/core 4.2.4 from the `package.json` file in this project, and setup a node_modules directory containing two identical es4x verticle implementations 
+2. The build script will retrieve an npm distribution, install rxjs 7.2.5 and @vertx/core 4.2.4 from the `package.json` file in this project, and setup a node_modules directory containing two identical es4x verticle implementations and a common js module that uses rxjs 
 3. Gradle will then execute the junit 5 test cases in the `DeployTests` junit test class
 4. There are 2 unit tests:
    1. `deploysOne` deploys just one of the verticles (mock-verticle-01) successfully to demonstrate that there is no problem with any of the modules used in the es4x verticles
