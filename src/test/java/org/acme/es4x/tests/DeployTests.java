@@ -8,7 +8,10 @@ import io.vertx.junit5.Timeout;
 import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;
 import io.vertx.core.Vertx;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,10 +19,12 @@ import org.slf4j.LoggerFactory;
 import java.util.concurrent.TimeUnit;
 
 @ExtendWith(VertxExtension.class)
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class DeployTests {
     Logger _logger = LoggerFactory.getLogger( "org.acme.es4x.tests.main" );
 
     @Test
+    @Order(1)
     public void deploysOne( Vertx theVertx, VertxTestContext theContext ) {
         _logger = LoggerFactory.getLogger( "org.acme.es4x.tests.main.deploysOne" );
         String v1Name = "js:node_modules/test-verticle/main.js";
@@ -56,6 +61,7 @@ public class DeployTests {
     }
 
     @Test
+    @Order(2)
     @Timeout(value=3, timeUnit = TimeUnit.MINUTES)
     public void deploysTwoOverlapping( Vertx theVertx, VertxTestContext theContext ) {
         _logger = LoggerFactory.getLogger( "org.acme.es4x.tests.main.deploysTwoOverlapping" );
@@ -63,6 +69,7 @@ public class DeployTests {
     }
 
     @Test
+    @Order(3)
     @Timeout(value=3, timeUnit = TimeUnit.MINUTES)
     public void deploysOneThenTwo( Vertx theVertx, VertxTestContext theContext ) {
         _logger = LoggerFactory.getLogger( "org.acme.es4x.tests.main.deploysOneThenTwo" );
