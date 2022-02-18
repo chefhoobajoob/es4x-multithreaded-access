@@ -99,9 +99,9 @@ public class DeployTests {
             theVertx.undeploy( deploy.result(), (ignored) -> v1Undeployed.flag() );
         });
 
+        Checkpoint v2Deployed = theContext.checkpoint();
+        Checkpoint v2Undeployed = theContext.checkpoint();
         theVertx.setTimer( theWaitTime, tid -> {
-            Checkpoint v2Deployed = theContext.checkpoint();
-            Checkpoint v2Undeployed = theContext.checkpoint();
             _logger.info(">>> launching verticle 2");
             theVertx.deployVerticle( v2Name, v2Options, deploy -> {
                 if ( deploy.failed() ) {
