@@ -15,4 +15,4 @@ The source code for verticle-01 and verticle-02 is identical except for the logg
 
 The junit test cases provide the address configuration to the verticles, and in `deploysOne`, the junit test case implements a consumer that will immediately respond as soon as the es4x verticle starts its deployment and sends its message. If the verticle loads and completes deployment, that means it was able to process all of its require statements and complete its messaging.
 
-In the `deploysTwo` test case, the junit driver provides address configuration to the two verticles, expecting both of them to deploy successfully, which can only happen if both verticles successfully process all of their require statements and complete their messaging during the `deploy` event.
+In the `deploysTwo` test case, the junit driver provides address configuration to the two verticles, expecting both of them to deploy successfully, which can only happen if both verticles successfully process all of their require statements and complete their messaging with each other during their `deploy` events.
