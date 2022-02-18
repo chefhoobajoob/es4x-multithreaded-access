@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true" scanPeriod="30 seconds">
+	<property name="LOG_BASE_NAME" value="acme-es4x-tests"/>
+	<appender name="file" class="ch.qos.logback.core.FileAppender">
+		<file>${LOG_BASE_NAME}.log</file>
+		<append>false</append>
+		<encoder>
+			<pattern>%d{"yyyy-MM-dd'T'HH:mm:ss,SSSZ"} [%thread] %-5level %logger{36} - %msg%n</pattern>
+		</encoder>
+	</appender>
+	<appender class="ch.qos.logback.core.ConsoleAppender" name="stdout">
+		<encoder>
+			<pattern>%d{"yyyy-MM-dd'T'HH:mm:ss,SSSZ"} [%thread] %-5level %logger{36} - %msg%n</pattern>
+		</encoder>
+	</appender>
+	<logger name="io.netty.handler.logging.LoggingHandler" level="WARN" />
+	<logger name="io.vertx.core.impl.BlockedThreadChecker" level="OFF" />
+	<root level="trace">
+		<appender-ref ref="file" />
+		<!--appender-ref ref="stdout" /-->
+	</root>
+</configuration>

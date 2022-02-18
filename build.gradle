@@ -1,0 +1,164 @@
+import org.apache.tools.ant.taskdefs.condition.Os
+import org.gradle.internal.jvm.Jvm
+
+buildscript {
+    repositories {
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+    dependencies {
+        classpath "com.moowork.gradle:gradle-node-plugin:1.3.1"
+    }
+}
+
+println ''
+println '>>>'
+println "Gradle version: ${project.getGradle().gradleVersion}"
+println "Java version: ${Jvm.current()}"
+println '>>>'
+println ''
+
+if (!JavaVersion.current().java8Compatible) {
+    throw new IllegalStateException('''A Haiku:
+                                      |  This needs Java 8,
+                                      |  You are using something less,
+                                      |  Refresh. Try again.'''.stripMargin())
+}
+
+//
+// N P M
+//
+apply plugin: 'com.moowork.node'
+
+node {
+    version = '14.4.0' // Version of node to use.
+    npmVersion = '7.6.1'
+    distBaseUrl = 'https://nodejs.org/dist' // Base URL for fetching node distributions (change if you have a mirror).
+    download = true // Download node using above parameters.
+    nodeModulesDir = file("${project.projectDir}") // Set the work directory where node_modules should be located
+    workDir = file("${System.getProperty('user.home')}/.moowork/nodejs")
+    npmWorkDir = file("${System.getProperty('user.home')}/.moowork/npm")
+}
+
+nodeSetup.onlyIf {
+    !nodeSetup.nodeDir.exists()
+}
+
+npmSetup.onlyIf {
+    !npmSetup.npmDir.exists()
+}
+
+//
+// JAVA
+//
+apply plugin: 'java-library'
+
+repositories {
+    mavenCentral()
+}
+
+configurations.all {
+    resolutionStrategy.cacheDynamicVersionsFor 1, 'minutes'
+}
+def vertxVersion = "4.2.4"
+def es4xVersion = "0.17.0"
+def junitVersion = "5.8.2"
+def junitPlatformVersion = "1.8.2"
+def graalVmVersion = "22.0.0.2"
+dependencies {
+    testImplementation 'ch.qos.logback:logback-classic:1.2.10'
+    testImplementation 'ch.qos.logback:logback-core:1.2.10'
+    testRuntimeOnly "org.graalvm.sdk:graal-sdk:$graalVmVersion"
+    testRuntimeOnly "org.graalvm.truffle:truffle-api:$graalVmVersion"
+    testRuntimeOnly "org.graalvm.js:js:$graalVmVersion"
+    testRuntimeOnly "org.graalvm.js:js-scriptengine:$graalVmVersion"
+    testRuntimeOnly "org.graalvm.tools:profiler:$graalVmVersion"
+    testRuntimeOnly "org.graalvm.tools:chromeinspector:$graalVmVersion"
+    testRuntimeOnly "org.graalvm.compiler:compiler:$graalVmVersion"
+    testRuntimeOnly "org.graalvm.compiler:compiler-management:$graalVmVersion"
+
+    testImplementation 'io.vavr:vavr:0.10.3'
+    testImplementation "io.reactiverse:es4x:$es4xVersion"
+    testImplementation "io.vertx:vertx-core:$vertxVersion"
+    testImplementation "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
+    testImplementation "org.junit.jupiter:junit-jupiter-api:$junitVersion"
+    testImplementation "org.junit.vintage:junit-vintage-engine:$junitVersion"
+    testImplementation "org.junit.platform:junit-platform-launcher:$junitPlatformVersion"
+    testImplementation "org.junit.platform:junit-platform-runner:$junitPlatformVersion"
+    testImplementation "io.vertx:vertx-unit:$vertxVersion"
+    testImplementation "io.vertx:vertx-junit5:$vertxVersion"
+    testImplementation 'org.assertj:assertj-core:3.12.1'
+}
+
+tasks.withType(JavaCompile).configureEach {
+    javaCompiler = javaToolchains.compilerFor {
+        languageVersion = JavaLanguageVersion.of( 11 )
+    }
+}
+
+tasks.withType(Test).configureEach {
+    javaLauncher = javaToolchains.launcherFor {
+        languageVersion = JavaLanguageVersion.of( 11 )
+    }
+}
+
+compileJava {
+    options.encoding = "UTF-8"
+    options.debugOptions.debugLevel = "source,lines,vars"
+    options.compilerArgs += '-proc:none'
+}
+
+compileTestJava {
+    options.encoding = "UTF-8"
+}
+
+task cleanup(type: Delete) {
+    delete 'node_modules'
+}
+
+task installPackages(type: NpmTask) {
+    dependsOn cleanup
+    args = ['install']
+}
+
+task setupMockVerticles(type: Copy) {
+    dependsOn installPackages
+    from('mock-internal') {
+        include('**/*')
+        into('mock-internal')
+    }
+    from('mock-verticle-01') {
+        include('**/*')
+        into('mock-verticle-01')
+    }
+    from('mock-verticle-02') {
+        include('**/*')
+        into('mock-verticle-02')
+    }
+    into('node_modules')
+}
+
+//
+// TEST
+//
+def graal = [:]
+configurations.testRuntimeClasspath.files.each {
+    if ( it.path.endsWith("graal-sdk-${graalVmVersion}.jar") ) {
+        graal['sdk'] = it.path
+    } else if ( it.path.endsWith( "truffle-api-${graalVmVersion}.jar" ) ) {
+        graal['truffle'] = it.path
+    } else if ( it.path.endsWith( "compiler-${graalVmVersion}.jar" ) ) {
+        graal['compiler'] = it.path
+    } else if ( it.path.endsWith( "compiler-management-${graalVmVersion}.jar" ) ) {
+        graal['management'] = it.path
+    }
+}
+
+test {
+    dependsOn setupMockVerticles
+    useJUnitPlatform()
+    def cpSep = Os.isFamily( OperatingSystemFamily.WINDOWS ) ? ';' : ':'
+    jvmArgs = ['-XX:+UnlockExperimentalVMOptions', '-XX:+EnableJVMCI', "--module-path=${graal['sdk']}", "--upgrade-module-path=${graal['compiler']}${cpSep}${graal['management']}${cpSep}${graal['truffle']}"]
+    testLogging.showStandardStreams = true
+}

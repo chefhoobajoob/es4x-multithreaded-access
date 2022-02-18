@@ -1,0 +1,106 @@
+package org.acme.es4x.tests;
+
+import io.vertx.core.DeploymentOptions;
+import io.vertx.core.eventbus.MessageConsumer;
+import io.vertx.core.json.JsonObject;
+import io.vertx.junit5.Checkpoint;
+import io.vertx.junit5.Timeout;
+import io.vertx.junit5.VertxExtension;
+import io.vertx.junit5.VertxTestContext;
+import io.vertx.core.Vertx;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.concurrent.TimeUnit;
+
+@ExtendWith(VertxExtension.class)
+public class DeployTests {
+    Logger _logger = LoggerFactory.getLogger( "org.acme.es4x.tests.main" );
+
+    @Test
+    public void deploysOne( Vertx theVertx, VertxTestContext theContext ) {
+        _logger = LoggerFactory.getLogger( "org.acme.es4x.tests.main.deploysOne" );
+        String v1Name = "js:node_modules/mock-verticle-01/main.js";
+        JsonObject v1Config = new JsonObject()
+            .put("myAddress", "org.acme.verticle.01")
+            .put("myName", "Kendrick")
+            .put("theirAddress", _logger.getName())
+            .put("theirName", "BbyMutha");
+        DeploymentOptions v1Options = new DeploymentOptions().setConfig( v1Config );
+
+        JsonObject hello = new JsonObject().put("helloFrom", v1Config.getString("theirName"));
+        MessageConsumer<JsonObject> consumer = theVertx.eventBus().consumer( _logger.getName(), message -> {
+            _logger.info(">>> got a hello message: {}", message.body().encode());
+            _logger.info(">>> sending a response: {}", hello.encode());
+            message.reply(hello);
+        });
+
+        Checkpoint v1Deployed = theContext.checkpoint();
+        Checkpoint v1Undeployed = theContext.checkpoint();
+        _logger.info(">>> launching verticle 1");
+        theVertx.deployVerticle( v1Name, v1Options, deploy -> {
+            if ( deploy.failed() ) {
+                _logger.error("couldn't deploy verticle 1", deploy.cause());
+                theContext.failNow( deploy.cause() );
+                consumer.unregister();
+                return;
+            }
+            v1Deployed.flag();
+            theVertx.undeploy( deploy.result(), (ignored) -> {
+                consumer.unregister();
+                v1Undeployed.flag();
+            } );
+        });
+    }
+
+    @Test
+    @Timeout(value=3, timeUnit = TimeUnit.MINUTES)
+    public void deploysTwo( Vertx theVertx, VertxTestContext theContext ) {
+        _logger = LoggerFactory.getLogger( "org.acme.es4x.tests.main.deploysTwo" );
+        String v1Name = "js:node_modules/mock-verticle-01/main.js";
+        JsonObject v1Config = new JsonObject()
+            .put("myAddress", "org.acme.verticle.01")
+            .put("myName", "Kendrick")
+            .put("theirAddress", "org.acme.verticle.02")
+            .put("theirName", "BbyMutha");
+        DeploymentOptions v1Options = new DeploymentOptions().setConfig( v1Config );
+
+        String v2Name = "js:node_modules/mock-verticle-02/main.js";
+        JsonObject v2Config = new JsonObject()
+            .put("myAddress", v1Config.getString("theirAddress"))
+            .put("myName", v1Config.getString("theirName"))
+            .put("theirAddress", v1Config.getString("myAddress"))
+            .put("theirName", v1Config.getString("myName"));
+        DeploymentOptions v2Options = new DeploymentOptions().setConfig( v2Config );
+
+        Checkpoint v1Deployed = theContext.checkpoint();
+        Checkpoint v1Undeployed = theContext.checkpoint();
+        _logger.info(">>> launching verticle 1");
+        theVertx.deployVerticle( v1Name, v1Options, deploy -> {
+            if ( deploy.failed() ) {
+                _logger.error("couldn't deploy verticle 1", deploy.cause());
+                theContext.failNow( deploy.cause() );
+                return;
+            }
+            v1Deployed.flag();
+            theVertx.undeploy( deploy.result(), (ignored) -> v1Undeployed.flag() );
+        });
+
+        theVertx.setTimer( 1000, tid -> {
+            Checkpoint v2Deployed = theContext.checkpoint();
+            Checkpoint v2Undeployed = theContext.checkpoint();
+            _logger.info(">>> launching verticle 2");
+            theVertx.deployVerticle( v2Name, v2Options, deploy -> {
+                if ( deploy.failed() ) {
+                    _logger.error("couldn't deploy verticle 2", deploy.cause());
+                    theContext.failNow( deploy.cause() );
+                    return;
+                }
+                v2Deployed.flag();
+                theVertx.undeploy( deploy.result(), (ignored) -> v2Undeployed.flag() );
+            });
+        } );
+    }
+}

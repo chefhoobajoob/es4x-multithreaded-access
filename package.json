@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "@vertx/core": "^4.2.4",
+    "rxjs": "^7.5.4"
+  }
+}
