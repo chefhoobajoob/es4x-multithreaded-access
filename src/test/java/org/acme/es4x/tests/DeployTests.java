@@ -24,7 +24,7 @@ public class DeployTests {
         _logger = LoggerFactory.getLogger( "org.acme.es4x.tests.main.deploysOne" );
         String v1Name = "js:node_modules/test-verticle/main.js";
         JsonObject v1Config = new JsonObject()
-            .put("myAddress", "org.acme.es4x.verticle")
+            .put("myAddress", "org.acme.es4x.verticle.01")
             .put("myName", "Kendrick")
             .put("theirAddress", _logger.getName())
             .put("theirName", "BbyMutha");

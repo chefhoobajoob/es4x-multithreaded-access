@@ -1,7 +1,10 @@
 /* global Java */
 /* global vertx */
+/* global config */
 
-const logger = Java.type('org.slf4j.LoggerFactory').getLogger('org.acme.es4x.test.verticle-01.someModule')
+const setup = JSON.parse(config.encode())
+const logger = Java.type('org.slf4j.LoggerFactory').getLogger(`${setup.myAddress}.someModule`)
+
 logger.info('loading ./observables')
 const { sendRequest } = require('./observables')
 logger.info('loading rxjs')

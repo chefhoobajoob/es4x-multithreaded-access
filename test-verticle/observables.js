@@ -1,7 +1,10 @@
 /* global Java */
 /* global vertx */
+/* global config */
 
-const logger = Java.type('org.slf4j.LoggerFactory').getLogger('org.acme.internal.observables')
+const setup = JSON.parse(config.encode())
+const logger = Java.type('org.slf4j.LoggerFactory').getLogger(`${setup.myAddress}.observables`)
+
 logger.debug('loading @vertx/core/options')
 const { DeliveryOptions } = require('@vertx/core/options')
 logger.debug('loading rxjs')
