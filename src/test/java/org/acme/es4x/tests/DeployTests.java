@@ -57,7 +57,17 @@ public class DeployTests {
 
     @Test
     @Timeout(value=3, timeUnit = TimeUnit.MINUTES)
-    public void deploysTwo( Vertx theVertx, VertxTestContext theContext ) {
+    public void deploysTwoOverlapping( Vertx theVertx, VertxTestContext theContext ) {
+        deployTwo( theVertx, theContext, 1000L );
+    }
+
+    @Test
+    @Timeout(value=3, timeUnit = TimeUnit.MINUTES)
+    public void deploysOneThenTwo( Vertx theVertx, VertxTestContext theContext ) {
+        deployTwo( theVertx, theContext, 10*1000L );
+    }
+
+    private void deployTwo( Vertx theVertx, VertxTestContext theContext, Long theWaitTime ) {
         _logger = LoggerFactory.getLogger( "org.acme.es4x.tests.main.deploysTwo" );
         String v1Name = "js:node_modules/test-verticle/main.js";
         JsonObject v1Config = new JsonObject()
@@ -88,7 +98,7 @@ public class DeployTests {
             theVertx.undeploy( deploy.result(), (ignored) -> v1Undeployed.flag() );
         });
 
-        theVertx.setTimer( 1000, tid -> {
+        theVertx.setTimer( theWaitTime, tid -> {
             Checkpoint v2Deployed = theContext.checkpoint();
             Checkpoint v2Undeployed = theContext.checkpoint();
             _logger.info(">>> launching verticle 2");
