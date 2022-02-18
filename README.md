@@ -36,7 +36,7 @@ org.graalvm.polyglot.PolyglotException: Multi threaded access requested by threa
   at <js>.:anonymous(/<project-root>/node_modules/test-verticle/someModule.js:9)
 ```
 #### `deploysOneThenTwo`
-Like `deploysTwoOverlapping`, but with a 10 second interval between deploy attempts, so the first verticle instance is able to complete processing its `deploy` event before the second instance's deployment start. This test always fails with the exception `org.graalvm.polyglot.PolyglotException: java.lang.AssertionError`. Typical stack trace is:
+Like `deploysTwoOverlapping`, but with a 10 second interval between deploy attempts, so the first verticle instance is able to complete processing its `deploy` event before the second instance's deployment start. This test always fails with the exception `org.graalvm.polyglot.PolyglotException: java.lang.AssertionError`. Typical stack trace (the specific rxjs module that will produce the error typically changes with each run):
 ```java
 org.graalvm.polyglot.PolyglotException: java.lang.AssertionError
     at app/org.graalvm.truffle/com.oracle.truffle.host.HostContext.toGuestValue(HostContext.java:274)
