@@ -107,3 +107,5 @@ The source code for the test verticle sends an event bus message to some address
 The junit test cases provide the address configuration to the test verticle, and in `deploysOne`, the junit test case implements a consumer that will immediately respond as soon as the test verticle starts its deployment and sends its message. If the verticle loads and completes deployment, that means it was able to process all of its require statements and complete its messaging.
 
 In the `deploysTwo` test case, the junit driver provides address configuration to two deployments of the same verticle, expecting both of them to deploy successfully, which can only happen if both instances successfully process all of their require statements and complete their messaging with each other during their `deploy` events.
+
+`deploysOneThenTwo` is the same as `deploysTwo`, just with a longer (10s) wait time between deployment attempts.
