@@ -103,7 +103,9 @@ public class DeployTests {
                 return;
             }
             v1Deployed.flag();
-            theVertx.undeploy( deploy.result(), (ignored) -> v1Undeployed.flag() );
+            theVertx.setTimer( 3000, ignored -> {
+                theVertx.undeploy( deploy.result(), (v2tid) -> v1Undeployed.flag() );
+            } );
         });
 
         Checkpoint v2Deployed = theContext.checkpoint();
@@ -117,7 +119,9 @@ public class DeployTests {
                     return;
                 }
                 v2Deployed.flag();
-                theVertx.undeploy( deploy.result(), (ignored) -> v2Undeployed.flag() );
+                theVertx.setTimer( 3000, ignored -> {
+                    theVertx.undeploy( deploy.result(), (v2tid) -> v2Undeployed.flag() );
+                } );
             });
         } );
     }
